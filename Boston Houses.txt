@@ -60,6 +60,7 @@ y_pred = best_xg_reg.predict(X_test_scaled )
 
 rmse = mean_squared_error(y_test, y_pred)
 print('RMSE:', rmse)
+#RMSE: 0.0030291404757982177
 
 cv_results = pd.DataFrame(grid_search.cv_results_)
 
