@@ -126,6 +126,7 @@ print(f'Best Parameters: {grid_search.best_params_}')
 ##post processing
 r2= r2_score(y_test, y_pred)
 print("R Squared:", r2)
+#R Squared: 0.9582110971590861
 
 
 #Training with with only the variables that have corr.> 0.4
@@ -187,7 +188,7 @@ print(f'Best Parameters: {grid_search.best_params_}')
 ##Post-processing
 r2= r2_score(y_test, y_pred)
 print("R Squared:", r2)
-
+#R Squared: 0.9508969755539398
 
 feature_importances = best_rf.feature_importances_
 
