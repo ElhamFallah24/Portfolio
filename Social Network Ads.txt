@@ -70,6 +70,18 @@ y_pred_proba = grid_search.predict_proba(X_test)[:, 1]
 print("Classification Report:\n", classification_report(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
+'''
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.96      0.92      0.94        52
+           1       0.87      0.93      0.90        28
+
+    accuracy                           0.93        80
+   macro avg       0.91      0.93      0.92        80
+weighted avg       0.93      0.93      0.93        80
+'''
+
 #Plotting the confusion matrix
 conf_matrix = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(8, 6))
