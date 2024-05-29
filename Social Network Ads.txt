@@ -1,0 +1,95 @@
+import pandas as pd
+from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.model_selection import train_test_split, GridSearchCV, KFold
+from sklearn.ensemble import RandomForestClassifier  
+import seaborn as sns
+
+df=pd.read_csv("/kaggle/input/logistic-regression/Social_Network_Ads.csv"  #https://www.kaggle.com/datasets/dragonheir/logistic-regression
+df.head()   #Check the columns
+#Data is not divided in columns
+#Separating the columns
+new_columns=df.columns[0].split(',')
+df[new_columns]=df.iloc[:,0].str.split(',',expand=True)
+df.drop(columns=[df.columns[0]], inplace=True)
+df.head()   #check the column
+'''
+User ID  Gender Age EstimatedSalary Purchased
+0  15624510    Male  19           19000         0
+1  15810944    Male  35           20000         0
+2  15668575  Female  26           43000         0
+3  15603246  Female  27           57000         0
+4  15804002    Male  19           76000         0
+'''
+df.isna().sum()  #Check for nan values
+'''
+User ID            0
+Gender             0
+Age                0
+EstimatedSalary    0
+Purchased          0
+'''
+#Changing the string type to numeric
+df['Gender'] = (df['Gender'] =='Male').astype(int)
+
+X = df.drop(columns=['Purchased','User ID'])
+y = df['Purchased']
+
+y=y.astype(int)
+
+#Defining model
+rf = RandomForestClassifier(random_state=42)
+
+param_grid = { 
+
+	'n_estimators': [50, 100, 200],
+
+	'max_depth': [None, 10, 20, 30],
+
+	 'min_samples_split': [2, 5, 10],
+
+	 'min_samples_leaf': [1, 2, 4] 
+
+} 
+
+#Dividing test and train sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#Gridsearch & cross-validation
+grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, scoring='f1', n_jobs=-1,verbose=False)
+
+grid_search.fit(X_train, y_train)
+
+print("Best parameters found: ", grid_search.best_params_)
+
+y_pred = grid_search.predict(X_test)
+y_pred_proba = grid_search.predict_proba(X_test)[:, 1]
+
+# Print classification report and confusion matrix
+print("Classification Report:\n", classification_report(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+#Plotting the confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Predicted Negative', 'Predicted Positive'], yticklabels=['Actual Negative', 'Actual Positive'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+
+# Plotting ROC curve
+y_test=y_test.astype(int)
+fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
+plt.show()
